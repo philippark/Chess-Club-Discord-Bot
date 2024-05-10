@@ -61,8 +61,12 @@ async def profile(ctx, arg):
         await ctx.send("Chess.com username not found")
 
 @bot.command()
-async def daily_puzzle(ctx, arg):
-    puzzle = chessdotcom.client.get_current_daily_puzzle
-    await ctx.send(puzzle)
+async def daily_puzzle(ctx):
+    response = chessdotcom.client.get_current_daily_puzzle()
+    title = response.puzzle.title
+    image = response.puzzle.image
+    url = response.puzzle.url
+
+    await ctx.send(f'{title} {image}')
 
 bot.run(TOKEN)

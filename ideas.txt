@@ -4,6 +4,7 @@
 - random quotes
 - daily puzzles? 
 - auto welcome
+- puzzle economy. most points by the end of the week gets gold.
 
 priorities:
 - auto welcome
