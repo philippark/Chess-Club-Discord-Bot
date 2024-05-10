@@ -1,0 +1,11 @@
+- give profile information
+- roast a member
+- chat ai
+- random quotes
+- daily puzzles? 
+- auto welcome
+
+priorities:
+- auto welcome
+- daily puzzles
+- player profile
