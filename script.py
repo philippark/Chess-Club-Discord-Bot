@@ -1,5 +1,9 @@
-from bot import post_daily_puzzle
+from v2 import test2
+import asyncio 
 
 
-print("here")
-print("there")
+async def test():
+    print('test')
+    asyncio.run(test2())
+
+asyncio.run(test())

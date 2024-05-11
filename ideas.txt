@@ -34,6 +34,7 @@ Deployment V1 (Tonight):
 - help documentation
 
 V2 (Next week):
+- Run in the background 
 - puzzle every day at a specific time
 - weekly stats
 - auto tournament announcement
