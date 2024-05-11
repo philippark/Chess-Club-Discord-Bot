@@ -11,6 +11,12 @@
 - leaderboard
 - club leaderboard
 - The Weekly Report: congrats those who went up. Logs at the beginning of the week current ratings, and then compares diff at the end of the week.
+* !start_weekly_report
+* !give_weekly_report
+- tournament details
+
+
+- Automate online tournament: send ping, post details
 
 priorities:
 - auto welcome (DONE)

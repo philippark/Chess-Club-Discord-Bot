@@ -1,12 +1,12 @@
-import asyncio
+import schedule
+import time
 
-import chessdotcom
+def job(t):
+    print ("I'm working...", t)
+    return
 
-chessdotcom.Client.request_config["headers"]["User-Agent"] = (
-   "My Python Application. "
-   "Contact me at email@example.com"
-)
+schedule.every().day.at("01:23").do(job,'It is 01:00')
 
-leaderboard = chessdotcom.client.get_leaderboards().json['leaderboards']
-
-print(leaderboard['live_blitz'][:5])
+while True:
+    schedule.run_pending()
+    time.sleep(60) # wait one minute

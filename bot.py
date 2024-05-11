@@ -18,8 +18,8 @@ GUILD = os.getenv('DISCORD_GUILD')
 bot = commands.Bot(command_prefix='!', intents=intents)
 
 chessdotcom.Client.request_config["headers"]["User-Agent"] = (
-   "My Python Application. "
-   "Contact me at email@example.com"
+   "ChessBot"
+   "Contact me at philippark271@gmail.com"
 )
 
 
@@ -70,6 +70,7 @@ async def profile(ctx, given_username=""):
         response = chessdotcom.get_player_profile(given_username).json['player']
     except:
         await ctx.send("Chess.com username not found")
+        return
 
     player_name = response['name'] if ('name' in response) else "None"
     username = response['username'] if ('username' in response) else "None"
@@ -96,22 +97,34 @@ async def profile(ctx, given_username=""):
 #get daily puzzle
 @bot.command()
 async def daily_puzzle(ctx):
-    response = chessdotcom.client.get_current_daily_puzzle()
-    title = response.puzzle.title
-    image = response.puzzle.image
-    url = response.puzzle.url
+    response = chessdotcom.client.get_current_daily_puzzle().json['puzzle']
+    title = response['title']
+    image = response['image']
+    url = response['url']
+    fen = response['fen'].split()
 
-    await ctx.send(f'{title} {image}')
+    turn = "white to move" if (fen[1] == 'w') else "black to move"
+
+    result_start = response['pgn'].index('\n1.')
+    result = response['pgn'][result_start+1:]
+
+    await ctx.send(f'{title}\nTurn: {turn}\n{image}\nSolution: {result}')
 
 #get random daily puzzle
 @bot.command()
 async def puzzle(ctx):
-    response = chessdotcom.client.get_random_daily_puzzle()
-    title = response.puzzle.title
-    image = response.puzzle.image
-    url = response.puzzle.url
+    response = chessdotcom.client.get_random_daily_puzzle().json['puzzle']
+    title = response['title']
+    image = response['image']
+    url = response['url']
+    fen = response['fen'].split()
 
-    await ctx.send(f'{title} {image}')
+    turn = "white to move" if (fen[1] == 'w') else "black to move"
+
+    result_start = response['pgn'].index('\n1.')
+    result = response['pgn'][result_start+1:]
+
+    await ctx.send(f'{title}\nTurn: {turn}\n{image}\nSolution: {result}')
 
 
 #randomly choose a club member
@@ -156,5 +169,7 @@ async def leaderboard(ctx, category=""):
     
     else:
         await ctx.send('Invalid/missing category. Categories: ' + leaderboard.keys())
+
+
 
 bot.run(TOKEN)
