@@ -29,6 +29,15 @@ next to do:
 
 
 
+Deployment V1 (Tonight):
+- random mittens quote at a random channel every 12-24 hours
+- help documentation
+
+V2 (Next week):
+- puzzle every day at a specific time
+- weekly stats
+- auto tournament announcement
+
 
 misc:
 - document commands

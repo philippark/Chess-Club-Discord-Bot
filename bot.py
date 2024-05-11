@@ -1,8 +1,9 @@
 import discord
 import os
 from dotenv import load_dotenv
-from discord.ext import commands
+from discord.ext import commands, tasks
 import random
+import asyncio
 
 import chessdotcom
 
@@ -23,10 +24,39 @@ chessdotcom.Client.request_config["headers"]["User-Agent"] = (
 )
 
 
+text_channel_list = []
+
+mittens_quotes = [
+    "meow",
+    "Meow! I like chess, hehehe.",
+    "I exist at this chess board through all times and realities. Hehehe. Meow." ,
+    "*ominously* All chess players eventually crumble under my mighty paws…I mean, meow! Hehehe.",
+    "I am a tiger and you are in the jungle I call eternity. Hehehe.",
+    "*Knocks queen onto the floor* Your queen is gone. Hehehehe.",
+    "Meow. That looks like a check. Hehehehe.",
+    "It looks like I won, hehehe."
+]
+
+@tasks.loop(minutes=1)
+async def send_message():
+    channel_id = random.choice(text_channel_list)
+    channel = bot.get_channel(channel_id)
+    dialogue = random.choice(mittens_quotes)
+    await channel.send(dialogue)
+
+
 '''events'''
 @bot.event
 async def on_ready():
     print(f'{bot.user} has connected')
+    for guild in bot.guilds:
+        if (guild.name != GUILD): 
+            continue
+        for channel in guild.text_channels:
+            text_channel_list.append(channel.id)
+
+    send_message.start()
+
     
 @bot.event
 async def on_member_join(member):
@@ -56,20 +86,20 @@ async def gotham_quote(ctx):
 
 
 #echo a user response
-@bot.command()
+@bot.command(help = "Echoes user input")
 async def echo(ctx, arg):
     await ctx.send(arg)
 
 
 #get stats on a profile
-@bot.command()
+@bot.command(help = "Gives profile stats on a Chess.com username")
 async def profile(ctx, given_username=""):
     response = {}
 
     try:
         response = chessdotcom.get_player_profile(given_username).json['player']
     except:
-        await ctx.send("Chess.com username not found")
+        await ctx.send("Chess.com username not found/missing. Usage: !profile username")
         return
 
     player_name = response['name'] if ('name' in response) else "None"
@@ -94,8 +124,8 @@ async def profile(ctx, given_username=""):
                        f'blitz: {blitz}'
                        )
     
-#get daily puzzle
-@bot.command()
+#get current daily puzzle
+@bot.command(help='Gives the current daily puzzle')
 async def daily_puzzle(ctx):
     response = chessdotcom.client.get_current_daily_puzzle().json['puzzle']
     title = response['title']
@@ -108,10 +138,10 @@ async def daily_puzzle(ctx):
     result_start = response['pgn'].index('\n1.')
     result = response['pgn'][result_start+1:]
 
-    await ctx.send(f'{title}\nTurn: {turn}\n{image}\nSolution: {result}')
+    await ctx.send(f'{title}\nTurn: {turn}\n{image}\nSolution: ||{result}||')
 
 #get random daily puzzle
-@bot.command()
+@bot.command(help='Gives a random daily puzzle')
 async def puzzle(ctx):
     response = chessdotcom.client.get_random_daily_puzzle().json['puzzle']
     title = response['title']
@@ -122,13 +152,13 @@ async def puzzle(ctx):
     turn = "white to move" if (fen[1] == 'w') else "black to move"
 
     result_start = response['pgn'].index('\n1.')
-    result = response['pgn'][result_start+1:]
+    result = response['pgn'][result_start+1:-2]
 
-    await ctx.send(f'{title}\nTurn: {turn}\n{image}\nSolution: {result}')
+    await ctx.send(f'{title}\nTurn: {turn}\n{image}\nSolution: ||{result}||')
 
 
 #randomly choose a club member
-@bot.command()
+@bot.command(help="Randomly chooses a club member with no membership")
 async def lottery(ctx):
     members = chessdotcom.client.get_club_members('rensselaer-chess-club', 0).json['members']
 
@@ -149,7 +179,7 @@ async def lottery(ctx):
 
 
 #get top 5 on leaderboard for given category
-@bot.command()
+@bot.command(help="Gives top 5 for categories: live_rapid, live_blitz, ...")
 async def leaderboard(ctx, category=""):
 
     leaderboard = chessdotcom.client.get_leaderboards().json['leaderboards']
