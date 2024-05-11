@@ -1,4 +1,4 @@
-- give profile information
+- give profile information: Name, premium member, mod or staff, ratings
 - roast a member
 - chat ai
 - random quotes

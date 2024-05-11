@@ -4,7 +4,6 @@ from dotenv import load_dotenv
 from discord.ext import commands
 import random
 
-from chessdotcom import get_player_profile, Client
 import chessdotcom
 
 
@@ -20,7 +19,7 @@ TOKEN = os.getenv('DISCORD_TOKEN')
 GUILD = os.getenv('DISCORD_GUILD')
 bot = commands.Bot(command_prefix='!', intents=intents)
 
-Client.request_config["headers"]["User-Agent"] = (
+chessdotcom.Client.request_config["headers"]["User-Agent"] = (
    "My Python Application. "
    "Contact me at email@example.com"
 )
@@ -52,14 +51,37 @@ async def echo(ctx, arg):
 
 @bot.command()
 async def profile(ctx, arg):
-    try:
-        response = get_player_profile(arg)
-        player_name = response.player.name
+    response = {}
 
-        await ctx.send(f'Name: {response.player.name}\nUsername: {response.player.username}\nCountry: {response.player.country}\nLast Online: {response.player.last_online}')
+    try:
+        response = chessdotcom.get_player_profile(arg).json['player']
     except:
         await ctx.send("Chess.com username not found")
 
+    player_name = response['name'] if ('name' in response) else "None"
+    username = response['username'] if ('username' in response) else "None"
+    status = response['status'] if ('status' in response) else "None"
+    is_streamer = response['is_streamer'] if ('is_streamer' in response) else "None"
+    verified = response['verified'] if ('verified' in response) else "None"
+    league = response['league'] if ('league' in response) else "None"
+
+    
+
+    stats = chessdotcom.client.get_player_stats(username).json['stats']
+
+    rapid = stats['chess_rapid']['last']['rating'] if ('chess_rapid' in stats) else 'None'
+    blitz = stats['chess_blitz']['last']['rating'] if ('chess_blitz' in stats) else 'None'
+
+    await ctx.send(f'Name: {player_name}\n'+
+                       f'Username: {username}\n'+
+                       f'Status: {status}\n'+
+                       f'is_streamer: {is_streamer}\n'+
+                       f'verified: {verified}\n'+
+                       f'league: {league}\n'+
+                       f'rapid: {rapid}\n'+
+                       f'blitz: {blitz}'
+                       )
+    
 @bot.command()
 async def daily_puzzle(ctx):
     response = chessdotcom.client.get_current_daily_puzzle()
