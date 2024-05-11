@@ -9,6 +9,8 @@
 - auto event ping?
 - get_club_members to choose a gold to give
 - leaderboard
+- club leaderboard
+- The Weekly Report: congrats those who went up. Logs at the beginning of the week current ratings, and then compares diff at the end of the week.
 
 priorities:
 - auto welcome (DONE)

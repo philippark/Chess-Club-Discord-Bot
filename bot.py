@@ -103,6 +103,16 @@ async def daily_puzzle(ctx):
 
     await ctx.send(f'{title} {image}')
 
+#get random daily puzzle
+@bot.command()
+async def puzzle(ctx):
+    response = chessdotcom.client.get_random_daily_puzzle()
+    title = response.puzzle.title
+    image = response.puzzle.image
+    url = response.puzzle.url
+
+    await ctx.send(f'{title} {image}')
+
 
 #randomly choose a club member
 @bot.command()
@@ -145,6 +155,6 @@ async def leaderboard(ctx, category=""):
         
     
     else:
-        await ctx.send('Invalid/missing category')
+        await ctx.send('Invalid/missing category. Categories: ' + leaderboard.keys())
 
 bot.run(TOKEN)
