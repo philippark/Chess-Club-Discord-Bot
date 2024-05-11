@@ -6,15 +6,13 @@ import random
 
 import chessdotcom
 
-
 load_dotenv()
 
-#intents
+'''initialization'''
 intents = discord.Intents.default()
 intents.message_content = True
 intents.members = True
 
-#initialization
 TOKEN = os.getenv('DISCORD_TOKEN')
 GUILD = os.getenv('DISCORD_GUILD')
 bot = commands.Bot(command_prefix='!', intents=intents)
@@ -24,7 +22,8 @@ chessdotcom.Client.request_config["headers"]["User-Agent"] = (
    "Contact me at email@example.com"
 )
 
-#events
+
+'''events'''
 @bot.event
 async def on_ready():
     print(f'{bot.user} has connected')
@@ -36,7 +35,9 @@ async def on_member_join(member):
         to_send = f'Ladies and Gentlemen, {member.mention} has arrived to {guild.name}!'
         await guild.system_channel.send(to_send)
 
-#commands
+
+'''commands'''
+#
 @bot.command(name = "quote", help="Responds with a random quote")
 async def gotham_quote(ctx):
     quotes = ["What’s worth more than a Queen? You are",
@@ -45,16 +46,20 @@ async def gotham_quote(ctx):
     
     await ctx.send(random.choice(quotes))
 
+
+#echo a user response
 @bot.command()
 async def echo(ctx, arg):
     await ctx.send(arg)
 
+
+#get stats on a profile
 @bot.command()
-async def profile(ctx, arg):
+async def profile(ctx, given_username):
     response = {}
 
     try:
-        response = chessdotcom.get_player_profile(arg).json['player']
+        response = chessdotcom.get_player_profile(given_username).json['player']
     except:
         await ctx.send("Chess.com username not found")
 
@@ -65,9 +70,7 @@ async def profile(ctx, arg):
     verified = response['verified'] if ('verified' in response) else "None"
     league = response['league'] if ('league' in response) else "None"
 
-    
-
-    stats = chessdotcom.client.get_player_stats(username).json['stats']
+    stats = chessdotcom.client.get_player_stats(given_username).json['stats']
 
     rapid = stats['chess_rapid']['last']['rating'] if ('chess_rapid' in stats) else 'None'
     blitz = stats['chess_blitz']['last']['rating'] if ('chess_blitz' in stats) else 'None'
@@ -82,6 +85,7 @@ async def profile(ctx, arg):
                        f'blitz: {blitz}'
                        )
     
+#get daily puzzle
 @bot.command()
 async def daily_puzzle(ctx):
     response = chessdotcom.client.get_current_daily_puzzle()
@@ -90,5 +94,27 @@ async def daily_puzzle(ctx):
     url = response.puzzle.url
 
     await ctx.send(f'{title} {image}')
+        
+
+@bot.command()
+async def lottery(ctx):
+    members = chessdotcom.client.get_club_members('rensselaer-chess-club', 0).json['members']
+
+    no_memberships = []
+
+    for member in members['all_time']:
+        try:
+            username = member['username']
+            profile = chessdotcom.get_player_profile(username).json['player']
+
+            if ('status' in profile):
+                if (profile['status'] == 'basic'):
+                    no_memberships.append(username)
+        except:
+            pass
+    
+    await ctx.send(random.choice(no_memberships))
+
+
 
 bot.run(TOKEN)

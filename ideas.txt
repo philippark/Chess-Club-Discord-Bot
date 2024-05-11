@@ -6,7 +6,14 @@
 - auto welcome
 - puzzle economy. most points by the end of the week gets gold.
 
+- auto event ping?
+- get_club_members to choose a gold to give
+- leaderboard
+
 priorities:
-- auto welcome
-- daily puzzles
-- player profile
+- auto welcome (DONE)
+- daily puzzles 
+- player profile (DONE)
+
+next to do:
+- choose gold
