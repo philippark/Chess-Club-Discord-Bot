@@ -37,8 +37,15 @@ mittens_quotes = [
     "It looks like I won, hehehe."
 ]
 
+
 @tasks.loop(minutes=1)
 async def send_message():
+    for guild in bot.guilds:
+        if (guild.name != GUILD): 
+            continue
+        for channel in guild.text_channels:
+            text_channel_list.append(channel.id)
+
     channel_id = random.choice(text_channel_list)
     channel = bot.get_channel(channel_id)
     dialogue = random.choice(mittens_quotes)
@@ -49,13 +56,8 @@ async def send_message():
 @bot.event
 async def on_ready():
     print(f'{bot.user} has connected')
-    for guild in bot.guilds:
-        if (guild.name != GUILD): 
-            continue
-        for channel in guild.text_channels:
-            text_channel_list.append(channel.id)
-
-    send_message.start()
+    
+    #send_message.start()
 
     
 @bot.event
@@ -75,7 +77,8 @@ async def on_error(event, *args, **kwargs):
 
 
 '''commands'''
-#
+
+'''
 @bot.command(name = "quote", help="Responds with a random quote")
 async def gotham_quote(ctx):
     quotes = ["What’s worth more than a Queen? You are",
@@ -83,7 +86,7 @@ async def gotham_quote(ctx):
           "You cannot stop an avalanche with a horse", "Have you ever been kicked in the face by a donkey?", "WHAT THE HELL IS D5???", "ble ble ble ble? ble ble ble blebleble?", "THE ROOOOOOK"]
     
     await ctx.send(random.choice(quotes))
-
+'''
 
 #echo a user response
 @bot.command(help = "Echoes user input")
@@ -93,7 +96,7 @@ async def echo(ctx, arg):
 
 #get stats on a profile
 @bot.command(help = "Gives profile stats on a Chess.com username")
-async def profile(ctx, given_username=""):
+async def profile(ctx, given_username=commands.parameter(default="", description="Chess.com username")):
     response = {}
 
     try:
@@ -178,9 +181,10 @@ async def lottery(ctx):
     await ctx.send(random.choice(no_memberships))
 
 
+categories = ["daily", "daily960","live_rapid","live_blitz","live_bullet","live_bughouse","live_blitz960","live_threecheck","live_crazyhouse","live_kingofthehill","tactics","rush","battle"]
 #get top 5 on leaderboard for given category
-@bot.command(help="Gives top 5 for categories: live_rapid, live_blitz, ...")
-async def leaderboard(ctx, category=""):
+@bot.command(help="Gives global top 5 on Chess.com for a category")
+async def leaderboard(ctx, category=commands.parameter(default="", description=" ".join(categories))):
 
     leaderboard = chessdotcom.client.get_leaderboards().json['leaderboards']
 
