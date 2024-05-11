@@ -35,6 +35,14 @@ async def on_member_join(member):
         to_send = f'Ladies and Gentlemen, {member.mention} has arrived to {guild.name}!'
         await guild.system_channel.send(to_send)
 
+@bot.event
+async def on_error(event, *args, **kwargs):
+    with open('err.log', 'a') as f:
+        if event == 'on_message':
+            f.write(f'Unhandled message: : {args[0]}\n')
+        else:
+            raise
+
 
 '''commands'''
 #
@@ -55,7 +63,7 @@ async def echo(ctx, arg):
 
 #get stats on a profile
 @bot.command()
-async def profile(ctx, given_username):
+async def profile(ctx, given_username=""):
     response = {}
 
     try:
@@ -94,8 +102,9 @@ async def daily_puzzle(ctx):
     url = response.puzzle.url
 
     await ctx.send(f'{title} {image}')
-        
 
+
+#randomly choose a club member
 @bot.command()
 async def lottery(ctx):
     members = chessdotcom.client.get_club_members('rensselaer-chess-club', 0).json['members']
@@ -116,5 +125,26 @@ async def lottery(ctx):
     await ctx.send(random.choice(no_memberships))
 
 
+#get top 5 on leaderboard for given category
+@bot.command()
+async def leaderboard(ctx, category=""):
+
+    leaderboard = chessdotcom.client.get_leaderboards().json['leaderboards']
+
+    top_5 = ""
+
+    if category in leaderboard:
+        catergory_leaderboard = leaderboard[category][:5]
+
+        i = 1
+        for player in catergory_leaderboard:
+            top_5 += (f'{i}. ' + player['username'] + '\n')
+            i+=1
+
+        await ctx.send(top_5)
+        
+    
+    else:
+        await ctx.send('Invalid/missing category')
 
 bot.run(TOKEN)

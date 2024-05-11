@@ -1,11 +1,12 @@
 import asyncio
 
-from chessdotcom import get_player_profile, Client
+import chessdotcom
 
-Client.aio = True
+chessdotcom.Client.request_config["headers"]["User-Agent"] = (
+   "My Python Application. "
+   "Contact me at email@example.com"
+)
 
-async def profile():
-    response = await asyncio.gather(get_player_profile("philipparko"))
-    return response
+leaderboard = chessdotcom.client.get_leaderboards().json['leaderboards']
 
-print(asyncio.run(profile()))
+print(leaderboard['live_blitz'][:5])
