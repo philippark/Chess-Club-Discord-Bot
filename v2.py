@@ -237,6 +237,97 @@ async def leaderboard(ctx, category=commands.parameter(default="", description="
     else:
         await ctx.send('Invalid/missing category. Categories: ' + leaderboard.keys())
 
+#get top 5 on club leaderboard for given category
+@bot.command(help="IN DEVELOPMENT")
+async def club_leaderboard(ctx, category=commands.parameter(default="", description=" ".join(categories))):
+    '''
+    leaderboard = chessdotcom.client.get_leaderboards().json['leaderboards']
+
+    top_5 = f'Top 5 for {category}:\n'
+
+    if category in leaderboard:
+        catergory_leaderboard = leaderboard[category][:5]
+
+        i = 1
+        for player in catergory_leaderboard:
+            top_5 += (f'{i}. ' + player['username'] + '\n')
+            i+=1
+
+        await ctx.send(top_5)
+        
+    
+    else:
+        await ctx.send('Invalid/missing category. Categories: ' + leaderboard.keys())
+    '''
+
+    members = chessdotcom.client.get_club_members('rensselaer-chess-club', 0).json['members']
+
+    ratings = []
+
+    for member in members['all_time']:
+        username = member['username']
+        stats = chessdotcom.client.get_player_stats(username).json['stats']
+        blitz_rating = stats['chess_blitz']['last']['rating'] if ('chess_blitz' in stats) else 'None'
+
+        if (blitz_rating == 'None'):
+            continue
+
+        ratings.append((int(blitz_rating), username))
+    
+    ratings.sort(reverse=True)
+
+    top_5 = f'Top 5 for {category}:\n'
+    
+    for player in ratings:
+            top_5 += (f'{player[1]}. ' + str(player[0]) + '\n')
+
+    await ctx.send(top_5)
+
+    print(ratings)
+
+    
+
+
+log = dict()
+
+@bot.command()
+async def log_member_stats(ctx, help="In Development"):
+    members = chessdotcom.client.get_club_members('rensselaer-chess-club', 0).json['members']
+
+    for member in members['all_time']:
+        username = member['username']
+        stats = chessdotcom.client.get_player_stats(username).json['stats']
+        blitz_rating = stats['chess_blitz']['last']['rating'] if ('chess_blitz' in stats) else 'None'
+
+        if (blitz_rating == 'None'):
+            continue
+
+        log[username] = int(blitz_rating)
+    
+    await ctx.send(log)
+    print(log)
+
+diff = dict()
+@bot.command()
+async def get_member_stats(ctx, help="In Development"):
+    members = chessdotcom.client.get_club_members('rensselaer-chess-club', 0).json['members']
+
+    for member in members['all_time']:
+        username = member['username']
+        stats = chessdotcom.client.get_player_stats(username).json['stats']
+        blitz_rating = stats['chess_blitz']['last']['rating'] if ('chess_blitz' in stats) else 'None'
+
+        if (blitz_rating == 'None'):
+            continue
+        if (username not in log):
+            continue
+
+        diff[username] = log[username] - int(blitz_rating)
+    
+    await ctx.send(diff)
+    print(diff)
+
+
 
 if __name__ == "__main__":
     bot.run(TOKEN)
